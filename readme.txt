@@ -1,9 +1,9 @@
 === HERE Maps ===
-Contributors: radek.adamczyk, marekkrysiuk, DeSmart
+Contributors: marekkrysiuk, DeSmart
 Tags: geo, location, maps, mapping, nokia, cross-browser, widget, places, nokia maps, address, here, here maps
 Requires at least: 3.8
 Tested up to: 4.1.0
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 
 With HERE Maps you can easily add places and addresses into your Wordpress posts or pages.
 
@@ -37,6 +37,9 @@ Just follow one of procedures described [here](http://codex.wordpress.org/Managi
 8. Tooltip template
 
 == Changelog ==
+= 1.1.4 =
+* Lower pixel ratio for HI-DPI devices
+* Fix: height parameter doesn't work (backward compatible)
 
 = 1.1.3 =
 * Added some coments for default API configuration
