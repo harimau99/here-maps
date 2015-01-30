@@ -37,6 +37,11 @@ Just follow one of procedures described [here](http://codex.wordpress.org/Managi
 8. Tooltip template
 
 == Changelog ==
+= 1.1.5 =
+* Restore pixel ratio for HI-DPI devies
+* Fix: Too small graphics for HI-DPI devies
+* Fix: Removed fullscreen button in unsupported browsers
+
 = 1.1.4 =
 * Lower pixel ratio for HI-DPI devices
 * Fix: height parameter doesn't work (backward compatible)

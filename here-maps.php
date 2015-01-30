@@ -3,7 +3,7 @@
   Plugin Name: HERE Maps
   Plugin URI: http://wordpress.org/extend/plugins/here-maps/
   Description: With this plugin you are able to add a places and addresses into a post or a page.
-  Version: 1.1.4
+  Version: 1.1.5
   Author: HERE
   Author URI: http://here.com
   License: BSD License
