@@ -3,7 +3,7 @@ Contributors: marekkrysiuk, DeSmart
 Tags: geo, location, maps, mapping, nokia, cross-browser, widget, places, nokia maps, address, here, here maps
 Requires at least: 3.8
 Tested up to: 4.1.0
-Stable tag: 1.1.4
+Stable tag: 1.1.5
 
 With HERE Maps you can easily add places and addresses into your Wordpress posts or pages.
 
