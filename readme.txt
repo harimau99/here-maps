@@ -3,7 +3,7 @@ Contributors: marekkrysiuk, DeSmart
 Tags: geo, location, maps, mapping, nokia, cross-browser, widget, places, nokia maps, address, here, here maps
 Requires at least: 3.8
 Tested up to: 4.1.0
-Stable tag: 1.1.5
+Stable tag: 1.2.0
 
 With HERE Maps you can easily add places and addresses into your Wordpress posts or pages.
 
@@ -11,7 +11,7 @@ With HERE Maps you can easily add places and addresses into your Wordpress posts
 
 = HERE Maps for Your Blog =
 
-Official HERE Maps is powered by HERE (http://here.com/). Add it to your blog to share information about your favorite places and to display maps.
+Official HERE Maps is powered by HERE APIs (https://developer.here.com/). Add it to your blog to share information about your favorite places and to display maps.
 
 = Features =
 
@@ -32,14 +32,21 @@ Just follow one of procedures described [here](http://codex.wordpress.org/Managi
 3. Add pin to map
 4. Customize your map
 5. Set map type
-6. Add your map to post
+6. Create custom area
 7. Box template
 8. Tooltip template
 
 == Changelog ==
+= 1.2.0 =
+* Feature: custom graphics for markers
+* Feature: custom area
+* Feature: new themes for marker information
+* Feature: simplified map type menu
+* Refactoring JavaScript code
+
 = 1.1.5 =
-* Restore pixel ratio for HI-DPI devies
-* Fix: Too small graphics for HI-DPI devies
+* Restore pixel ratio for HI-DPI devices
+* Fix: Too small graphics for HI-DPI devices
 * Fix: Removed fullscreen button in unsupported browsers
 
 = 1.1.4 =

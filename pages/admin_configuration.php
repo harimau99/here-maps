@@ -32,7 +32,6 @@ if($app_id === $config['app_id']) {
 if($app_code === $config['app_code']) {
   $app_code = null;
 }
-include(dirname(__FILE__) . '/load_language.php');
 ?>
 <style type="text/css">
   .label_style {
@@ -57,11 +56,11 @@ include(dirname(__FILE__) . '/load_language.php');
   <h2><?=__('here-maps-admin-page-auth-title', 'here-maps');?></h2>
 
   <?php if (true === isset($_REQUEST['here_maps_submit'])) : ?>
-  <div class="<?= (true === $success) ? 'updated' : 'error'; ?>">
-    <p>
-      <?= (true === $success) ? __('Saved') : __('Something went wrong...'); ?>
-    </p>
-  </div>
+    <div class="<?= (true === $success) ? 'updated' : 'error'; ?>">
+      <p>
+        <?= (true === $success) ? __('Saved') : __('Something went wrong...'); ?>
+      </p>
+    </div>
   <?php endif; ?>
 
   <div id='col-container'>

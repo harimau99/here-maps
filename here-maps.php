@@ -3,7 +3,7 @@
   Plugin Name: HERE Maps
   Plugin URI: http://wordpress.org/extend/plugins/here-maps/
   Description: With this plugin you are able to add a places and addresses into a post or a page.
-  Version: 1.1.5
+  Version: 1.2.0
   Author: HERE
   Author URI: http://here.com
   License: BSD License
@@ -47,7 +47,7 @@ function here_maps_parse_request(&$wp)
     return;
   }
 
-  if ('here-maps' !== strtolower($vars['plugin'])) {
+  if (HereMapsCore::$pluginName !== strtolower($vars['plugin'])) {
     return;
   }
 
@@ -101,6 +101,10 @@ function here_maps_shortcode($atts, $c)
     'template' => null,
     'placeid' => null,
     'sizes' => null,
+    'theme' => null,
+    'contour_color' => null,
+    'contour_opacity' => null,
+    'contour' => null,
     'places' => array(),
   );
 
@@ -119,6 +123,7 @@ function here_maps_shortcode($atts, $c)
   $params['zoom'] = $atts['zoom'];
   $params['hidden'] = $atts['hidden'];
   $params['template'] = $atts['template'];
+  $params['theme'] = isset($atts['theme']) ? $atts['theme'] : null;
 
   // BC
   if (true === isset($atts['placeid'])) {
@@ -169,6 +174,12 @@ function here_maps_shortcode($atts, $c)
   $params['width'] = $atts['width'];
   $params['map_mode'] = $atts['map_mode'];
 
+  if (true === isset($atts['contour'])) {
+    $params['contour_color'] = (isset($atts['contour_color'])) ? $atts['contour_color'] : null;
+    $params['contour_opacity'] = (isset($atts['contour_opacity'])) ? $atts['contour_opacity'] : null;
+    $params['contour'] = $atts['contour'];
+  }
+
   return here_maps_create_post($params);
 }
 
@@ -194,9 +205,14 @@ function here_maps_create_post($params)
   }
 
   $templates = array('fixed', 'tooltip', 'empty');
+  $themes = array('dark', 'light');
 
   if (false === in_array($template, $templates)) {
     $template = 'fixed';
+  }
+
+  if (false === in_array($theme, $themes)) {
+    $theme = null;
   }
 
   if (null !== $center) $url_attributes[] = sprintf('center=%s', $center);
@@ -204,11 +220,25 @@ function here_maps_create_post($params)
 
   if (null !== $map_mode) $url_attributes[] = sprintf('map_mode=%s', $map_mode);
   if (null !== $hidden) $url_attributes[] = sprintf('hidden=%s', $hidden);
+
   if (null !== $template) $url_attributes[] = sprintf('template=%s', $template);
+  if (null !== $theme) $url_attributes[] = sprintf('theme=%s', $theme);
 
   // BC
   if (null !== $placeid) $url_attributes[] = sprintf('placeid=%s', $placeid);
   if (null !== $title) $url_attributes[] = sprintf('title=%s', $title);
+
+  // Contour
+  if (null !== $contour_color) $url_attributes[] = sprintf('contour_color=%s', str_replace('#', '', $contour_color));
+  if (null !== $contour_opacity) $url_attributes[] = sprintf('contour_opacity=%s', $contour_opacity);
+
+  if (null !== $contour) {
+    $contour = explode('|', $contour);
+
+    foreach ($contour as $row) {
+      $url_attributes[] = sprintf('contour[]=%s', $row);
+    }
+  }
 
   $height = $height ? $height : 400;
   $width = $width ? $width : '100%';
@@ -321,6 +351,41 @@ function here_maps_join_file($fileName)
   return sprintf('%s?%d', $file_path, $date);
 }
 
+/**
+ * Detect user browser language
+ */
+function here_maps_detect_language() {
+  // Exists languages files
+  $languages = array(
+    'pl' => 'pl_PL',
+    'en' => 'en_US',
+  );
+
+  $browser_locale = (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)) ? substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2) : '';
+
+  if (true === array_key_exists($browser_locale, $languages)) {
+    return $languages[$browser_locale];
+  }
+
+  return $languages['en'];
+}
+
+/**
+ * Return dynamic path to language file.
+ *
+ * @param string $mofile
+ * @param string $domain
+ * @return string
+ */
+function here_maps_detect_browser_language_file($mofile, $domain)
+{
+  if (HereMapsCore::$pluginName !== $domain) {
+    return $mofile;
+  }
+
+  return sprintf('%s/languages/here-maps-%s.mo', dirname(__FILE__), here_maps_detect_language());
+}
+
 // Attach and parse variables from request
 add_filter('query_vars', 'here_maps_query_vars');
 add_action('parse_request', 'here_maps_parse_request');
@@ -340,11 +405,14 @@ add_shortcode('nokia-maps', 'here_maps_shortcode');
 add_shortcode('here-maps', 'here_maps_shortcode');
 
 // Add custom sources to map
-wp_enqueue_style($file = 'dist/stylesheets/page.min.css', plugins_url($file, __FILE__), array(), false);
+wp_enqueue_style($file = 'dist/stylesheets/wordpress-page.min.css', plugins_url($file, __FILE__), array(), false);
 
 // Add jQuery and custom scripts to map
 wp_enqueue_script('jquery');
-wp_enqueue_script($file = 'dist/javascripts/page.min.js', plugins_url($file, __FILE__));
+wp_enqueue_script($file = 'dist/javascripts/wordpress-page.min.js', plugins_url($file, __FILE__));
+
+// Detect browser language
+add_filter('load_textdomain_mofile', 'here_maps_detect_browser_language_file', 10, 2);
 
 // Load language
 // For creating *.mo file use: msgfmt file.po -o file.mo

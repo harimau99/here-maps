@@ -1,15 +1,33 @@
 <?php
 $places = array();
+$vertices = array();
+
 $params = isset($_GET['place']) ? $_GET['place'] : array();
+$contour = isset($_GET['contour']) ? $_GET['contour'] : array();
 
 foreach ($params as $item) {
   $matches = explode('|', $item);
+  $icon = (isset($matches[4])) ? wp_get_attachment_url($matches[4]) : null;
+  $title = json_encode(htmlspecialchars($matches[3]));
+  $desc = json_encode(htmlspecialchars($matches[2]));
+
+  $amps = array('&amp;#038;', '&amp;amp;');
 
   $places[] = array(
     'x' => (float) $matches[0],
     'y' => (float) $matches[1],
-    'title' => json_encode(htmlspecialchars($matches[3])),
-    'description' => json_encode(htmlspecialchars($matches[2])),
+    'title' => str_replace($amps, '&', $title),
+    'description' => str_replace($amps, '&', $desc),
+    'icon' => $icon
+  );
+}
+
+foreach ($contour as $item) {
+  $matches = explode(',', $item);
+
+  $vertices[] = array(
+    'x' => (float) $matches[0],
+    'y' => (float) $matches[1],
   );
 }
 
@@ -18,8 +36,6 @@ $center = (isset($_GET['center'])) ? $_GET['center'] : null;
 if(false === is_null($center)) {
   $center = explode('|', $_GET['center']);
 }
-
-include(dirname(__FILE__) . '/load_language.php');
 ?><!DOCTYPE html>
 <html class="here-maps-root">
 <head>
@@ -36,37 +52,62 @@ include(dirname(__FILE__) . '/load_language.php');
   <?php endif; ?>
   <script>
     (function(w){ // H is namespace for HERE Maps
-      if("undefined"===typeof w.H){w.H={};}w.H.Auth={};w.H.places=[];w.H.MapBubbles=[];w.H.MapBubblesCounter=0;
-      w.H.Auth.id='<?=get_option('here_maps_app_id');?>';w.H.Auth.code='<?=get_option('here_maps_app_code');?>';
+      if ("undefined" === typeof w.H) { w.H={}; }
+
+      w.H.Config = {
+        path: '<?=plugin_dir_url(__DIR__);?>',
+        userLang: '<?=str_replace('_', '-', here_maps_detect_language());?>',
+        auth: {
+          id: '<?=get_option('here_maps_app_id');?>',
+          code: '<?=get_option('here_maps_app_code');?>'
+        },
+        lang: {
+          'here-maps-markers-new-marker-tooltip': '<?=__('here-maps-markers-new-marker-tooltip', 'here-maps');?>',
+          'here-maps-markers-new-marker-title': '<?=__('here-maps-markers-new-marker-title', 'here-maps');?>',
+          'here-maps-markers-label-changepin': '<?=__('here-maps-admin-gui-label-changepin', 'here-maps');?>',
+          'here-maps-markers-label-restorepin': '<?=__('here-maps-admin-gui-label-restorepin', 'here-maps');?>',
+          'here-maps-markers-label-seeonhere': '<?=__('here-maps-front-template-see', 'here-maps');?>',
+          'here-maps-markers-label-getdirection': '<?=__('here-maps-front-template-get', 'here-maps');?>',
+          'here-maps-markers-label-noresult': '<?=__('here-maps-search-result-nothing', 'here-maps');?>',
+          'here-maps-zoom-in': '<?=__('here-maps-zoom-in', 'here-maps');?>',
+          'here-maps-zoom-out': '<?=__('here-maps-zoom-out', 'here-maps');?>'
+        },
+        getParams: {
+          zoom: <?=json_encode($_GET['zoom']);?>,
+          center: <?=json_encode($center);?>,
+          template: <?=json_encode($_GET['template']);?>,
+          hidden: <?=json_encode($_GET['hidden']);?>,
+          map_mode: <?=json_encode($_GET['map_mode']);?>,
+          placeid: <?=json_encode($_GET['placeid']);?>,
+          title: <?=json_encode($_GET['title']);?>,
+          contour_opacity: <?=json_encode($_GET['contour_opacity']);?>,
+          contour_color: <?=json_encode($_GET['contour_color']);?>
+        }
+      };
+      w.H.places=[];w.H.contour=[];
       <?php foreach($places as $item) : ?>
-        w.H.places.push({ x: <?=$item['x'];?>, y: <?=$item['y'];?>, description: <?=$item['description'];?>, title: <?=$item['title'];?>});
+        w.H.places.push({ lat: <?=$item['x'];?>, lng: <?=$item['y'];?>, description: <?=$item['description'];?>, title: <?=$item['title'];?>, icon: '<?=$item['icon'];?>'});
       <?php endforeach; ?>
-      w.H.Lang={
-        'here-maps-markers-new-marker-tooltip': '<?=__('here-maps-markers-new-marker-tooltip', 'here-maps');?>',
-        'here-maps-markers-new-marker-title': '<?=__('here-maps-markers-new-marker-title', 'here-maps');?>',
-        'here-maps-markers-label-changepin': '<?=__('here-maps-admin-gui-label-changepin', 'here-maps');?>',
-        'here-maps-markers-label-restorepin': '<?=__('here-maps-admin-gui-label-restorepin', 'here-maps');?>',
-        'here-maps-markers-label-seeonhere': '<?=__('here-maps-front-template-see', 'here-maps');?>',
-        'here-maps-markers-label-getdirection': '<?=__('here-maps-front-template-get', 'here-maps');?>'
-      };
-      w.H.GetParams = {
-        zoom: <?=json_encode($_GET['zoom']);?>,
-        center: <?=json_encode($center);?>,
-        template: <?=json_encode($_GET['template']);?>,
-        hidden: <?=json_encode($_GET['hidden']);?>,
-        map_mode: <?=json_encode($_GET['map_mode']);?>,
-        placeid: <?=json_encode($_GET['placeid']);?>,
-        title: <?=json_encode($_GET['title']);?>
-      };
+      <?php foreach($vertices as $item) : ?>
+        w.H.contour.push({ lat: <?=$item['x'];?>, lng: <?=$item['y'];?> });
+      <?php endforeach; ?>
     })(window);
   </script>
 </head>
-<body class="container-fluid">
+<?php
+  $hidden = isset($_GET['hidden']) ? htmlspecialchars($_GET['hidden']) : null;
+  $template = isset($_GET['template']) ? htmlspecialchars($_GET['template']) : 'empty';
+  $theme = isset($_GET['theme']) ? htmlspecialchars($_GET['theme']) : null;
+
+  if (null === $theme) {
+    $box_class = null;
+  } else {
+    $box_class = ('dark' === $theme) ? ' theme-dark' : ' theme-light';
+  }
+
+?><body class="container-fluid<?=$box_class;?>">
 <div id="mapContainer">
 <?php
-  $hidden = isset($_GET['hidden']) ? $_GET['hidden'] : null;
-  $template = isset($_GET['template']) ? $_GET['template'] : 'empty';
-
   if ('fixed' === $template) {
     include(dirname(__FILE__) . '/include/template-box.html');
   }
