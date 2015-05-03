@@ -3,7 +3,7 @@
   Plugin Name: HERE Maps
   Plugin URI: http://wordpress.org/extend/plugins/here-maps/
   Description: With this plugin you are able to add a places and addresses into a post or a page.
-  Version: 1.2.0
+  Version: 1.2.1
   Author: HERE
   Author URI: http://here.com
   License: BSD License
@@ -106,6 +106,7 @@ function here_maps_shortcode($atts, $c)
     'contour_opacity' => null,
     'contour' => null,
     'places' => array(),
+    'title' => null,
   );
 
   // Places
@@ -119,11 +120,12 @@ function here_maps_shortcode($atts, $c)
   }
 
   // Customize map
-  $params['center'] = $atts['center'];
-  $params['zoom'] = $atts['zoom'];
-  $params['hidden'] = $atts['hidden'];
-  $params['template'] = $atts['template'];
+  $params['center'] = (isset($atts['center'])) ? $atts['center'] : null;
+  $params['zoom'] = (isset($atts['zoom'])) ? $atts['zoom'] : null;
+  $params['hidden'] =(isset($atts['hidden'])) ? $atts['hidden'] : null;
+  $params['template'] = (isset($atts['template'])) ? $atts['template'] : null;
   $params['theme'] = isset($atts['theme']) ? $atts['theme'] : null;
+  $params['title'] = isset($atts['title']) ? $atts['title'] : null;
 
   // BC
   if (true === isset($atts['placeid'])) {
@@ -170,9 +172,9 @@ function here_maps_shortcode($atts, $c)
   }
 
   // Size of map + type
-  $params['height'] = $atts['height'];
-  $params['width'] = $atts['width'];
-  $params['map_mode'] = $atts['map_mode'];
+  $params['height'] = isset($atts['height']) ? $atts['height'] : null;
+  $params['width'] = isset($atts['width']) ? $atts['width'] : null;
+  $params['map_mode'] = isset($atts['map_mode']) ? $atts['map_mode'] : null;
 
   if (true === isset($atts['contour'])) {
     $params['contour_color'] = (isset($atts['contour_color'])) ? $atts['contour_color'] : null;
@@ -260,11 +262,11 @@ function here_maps_create_post($params)
   $result = '<div class="here-maps-map-container" style="';
 
   if (true === isset($attributes['height']) && false === is_null($attributes['height'])) {
-    $result .=  sprintf('height:%s;', $attributes['height']);
+    $result .= sprintf('height:%s;', $attributes['height']);
   }
 
   if (true === isset($attributes['width']) && false === is_null($attributes['width'])) {
-    $result .=  sprintf('width:%s;', $attributes['width']);
+    $result .= sprintf('width:%s;', $attributes['width']);
   }
 
   $result .= '">';
@@ -354,7 +356,8 @@ function here_maps_join_file($fileName)
 /**
  * Detect user browser language
  */
-function here_maps_detect_language() {
+function here_maps_detect_language()
+{
   // Exists languages files
   $languages = array(
     'pl' => 'pl_PL',
@@ -386,6 +389,17 @@ function here_maps_detect_browser_language_file($mofile, $domain)
   return sprintf('%s/languages/here-maps-%s.mo', dirname(__FILE__), here_maps_detect_language());
 }
 
+function here_maps_enqueue_styles()
+{
+  wp_enqueue_style($file = 'dist/stylesheets/wordpress-page.min.css', plugins_url($file, __FILE__), array(), false);
+}
+
+function here_maps_enqueue_scripts()
+{
+  wp_enqueue_script('jquery');
+  wp_enqueue_script($file = 'dist/javascripts/wordpress-page.min.js', plugins_url($file, __FILE__));
+}
+
 // Attach and parse variables from request
 add_filter('query_vars', 'here_maps_query_vars');
 add_action('parse_request', 'here_maps_parse_request');
@@ -405,11 +419,10 @@ add_shortcode('nokia-maps', 'here_maps_shortcode');
 add_shortcode('here-maps', 'here_maps_shortcode');
 
 // Add custom sources to map
-wp_enqueue_style($file = 'dist/stylesheets/wordpress-page.min.css', plugins_url($file, __FILE__), array(), false);
+add_action('wp_enqueue_styles', 'here_maps_enqueue_styles');
 
 // Add jQuery and custom scripts to map
-wp_enqueue_script('jquery');
-wp_enqueue_script($file = 'dist/javascripts/wordpress-page.min.js', plugins_url($file, __FILE__));
+add_action('wp_enqueue_scripts', 'here_maps_enqueue_scripts');
 
 // Detect browser language
 add_filter('load_textdomain_mofile', 'here_maps_detect_browser_language_file', 10, 2);

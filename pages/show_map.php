@@ -73,15 +73,15 @@ if(false === is_null($center)) {
           'here-maps-zoom-out': '<?=__('here-maps-zoom-out', 'here-maps');?>'
         },
         getParams: {
-          zoom: <?=json_encode($_GET['zoom']);?>,
-          center: <?=json_encode($center);?>,
-          template: <?=json_encode($_GET['template']);?>,
-          hidden: <?=json_encode($_GET['hidden']);?>,
-          map_mode: <?=json_encode($_GET['map_mode']);?>,
-          placeid: <?=json_encode($_GET['placeid']);?>,
-          title: <?=json_encode($_GET['title']);?>,
-          contour_opacity: <?=json_encode($_GET['contour_opacity']);?>,
-          contour_color: <?=json_encode($_GET['contour_color']);?>
+          zoom: <?=json_encode(isset($_GET['zoom']) ? $_GET['zoom'] : "");?>,
+          center: <?=json_encode(isset($_GET['center']) ? $_GET['center'] : "");?>,
+          template: <?=json_encode(isset($_GET['template']) ? $_GET['template'] : "");?>,
+          hidden: <?=json_encode(isset($_GET['hidden']) ? $_GET['hidden'] : "");?>,
+          map_mode: <?=json_encode(isset($_GET['map_mode']) ? $_GET['map_mode'] : "");?>,
+          placeid: <?=json_encode(isset($_GET['placeid']) ? $_GET['placeid'] : "");?>,
+          title: <?=json_encode(isset($_GET['title']) ? $_GET['title'] : "");?>,
+          contour_opacity: <?=json_encode(isset($_GET['contour_opacity']) ? $_GET['contour_opacity'] : "");?>,
+          contour_color: <?=json_encode(isset($_GET['contour_color']) ? $_GET['contour_color'] : "");?>
         }
       };
       w.H.places=[];w.H.contour=[];
@@ -112,7 +112,7 @@ if(false === is_null($center)) {
     include(dirname(__FILE__) . '/include/template-box.html');
   }
 
-  if (false == preg_match('/map_mode/i', $_GET['hidden'])) {
+  if (isset($_GET['hidden']) && false == preg_match('/map_mode/i', $_GET['hidden'])) {
     include(dirname(__FILE__) . '/include/map-select.html');
   }
 ?>
