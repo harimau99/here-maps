@@ -38,7 +38,7 @@ Just follow one of procedures described [here](http://codex.wordpress.org/Managi
 
 == Changelog ==
 = 1.2.4 =
-* Fix: map shouldn't be automatically if map has only one marker
+* Fix: map shouldn't be automatically center if map has only one marker
 
 = 1.2.3 =
 * Fix: missing info about new version (1.2.2)
